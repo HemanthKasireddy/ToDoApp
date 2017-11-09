@@ -7,5 +7,6 @@ public interface IUserService {
 	public boolean updateUser(User user);
 	public User getUser(String email, String password);
 	public void deleteUser();
-	public User getUserById(int id);
+	public User getUserById(long id);
+	boolean updateUserPassword(String password,String email);
 }

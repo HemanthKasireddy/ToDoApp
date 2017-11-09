@@ -14,6 +14,8 @@ import com.bridgeit.toDoNotes.services.INotesService;
 import com.bridgeit.toDoNotes.services.MailerServiceImpl;
 import com.bridgeit.toDoNotes.services.NotesServiceImpl;
 import com.bridgeit.toDoNotes.services.UserServiceImpl;
+import com.bridgeit.toDoNotes.tokens.ITokens;
+import com.bridgeit.toDoNotes.tokens.TokenImpl;
 import com.bridgeit.toDoNotes.validations.UserRegistrationValidations;
 
 @Configuration
@@ -58,5 +60,8 @@ public class ApplicationConfiguration {
 		return new NotesDAOImpl();
 		
 	}
-	
+	@Bean
+	public ITokens iTokens() {
+		return new TokenImpl();
+	}
 }

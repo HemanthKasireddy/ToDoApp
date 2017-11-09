@@ -1,9 +1,10 @@
 package com.bridgeit.toDoNotes.controller;
 
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,24 +18,41 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bridgeit.toDoNotes.model.Notes;
 import com.bridgeit.toDoNotes.model.User;
 import com.bridgeit.toDoNotes.services.INotesService;
+import com.bridgeit.toDoNotes.services.UserServiceImpl;
+import com.bridgeit.toDoNotes.tokens.ITokens;
 
 @RestController
 /*@RequestMapping(value = "/notes")*/
 public class UserNotes {
 	@Autowired
 	private INotesService iNotesService;
+	@Autowired 
+	private UserServiceImpl userServiceImpl;
+	@Autowired
+	private ITokens iTokens;
 	@RequestMapping(value = "/createNote", method = RequestMethod.POST)
-	public ResponseEntity<String> createNote(@RequestBody Notes notes,HttpSession session) {
+	public ResponseEntity<String> createNote(@RequestBody Notes notes, HttpServletRequest request) {
+	
 		notes.setCreatedTime(new Date());
 		notes.setUpdatedTime(notes.getCreatedTime());
-		User user=(User) session.getAttribute("Name");
-		System.out.println(user);
-		System.out.println("&&&&&&&&&&&"+session.getAttribute("Name"));
-		System.out.println("####### Usre id is: "+user.getUserId()+" user name is "+user.getEmail());
-
+		//User user=(User) session.getAttribute("Name");
+	//	System.out.println(user);
+		//.out.println("&&&&&&&&&&&"+session.getAttribute("Name"));
+		//System.out.println("####### Usre id is: "+user.getUserId()+" user name is "+user.getEmail());
+		Enumeration<String> headerNames = request.getHeaderNames();
+		String token=null; ;
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            if(key.equals("token")) {
+            	token = request.getHeader(key);
+             break;
+            }
+        }
+    	long id=Long.valueOf(iTokens.verifyToken(token));
+		User user=userServiceImpl.getUserById(id);
 		notes.setUser(user);
-		long id=iNotesService.createNote(notes);
-		if(id>0) {
+		long responseCount=iNotesService.createNote(notes);
+		if(responseCount>0) {
 
 
 			return  ResponseEntity.status(HttpStatus.CREATED).body("Note created succesfully");
@@ -45,11 +63,20 @@ public class UserNotes {
 
 		}
 	}
+	
 	@RequestMapping(value="/getAllNotes",method=RequestMethod.GET)
-	public ResponseEntity<List<Notes>> getAllNotes(HttpSession session) {
-		User user=(User) session.getAttribute("Name");
-
-		List<Notes> notes =iNotesService.getAllNotes(user.getUserId());
+	public ResponseEntity<List<Notes>> getAllNotes(HttpServletRequest request) {
+		Enumeration<String> headerNames = request.getHeaderNames();
+		String token=null; ;
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            if(key.equals("token")) {
+            	token = request.getHeader(key);
+             break;
+            }
+        }
+    	long id=Long.valueOf(iTokens.verifyToken(token));
+		List<Notes> notes =iNotesService.getAllNotes(id);
 		if(notes!=null) {
 
 
@@ -63,11 +90,20 @@ public class UserNotes {
 
 		}
 	}
+	
 	@RequestMapping(value="/getNodeById/{id}",method=RequestMethod.GET)
-	public ResponseEntity<List<Notes>> getNoteById(@PathVariable("id") long noteId,HttpSession session) {
-		User user=(User) session.getAttribute("Name");
-
-		List<Notes> notes =iNotesService.getNoteById(user.getUserId(),noteId);
+	public ResponseEntity<List<Notes>> getNoteById(@PathVariable("id") long noteId,HttpServletRequest request) {
+		Enumeration<String> headerNames = request.getHeaderNames();
+		String token=null; ;
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            if(key.equals("token")) {
+            	token = request.getHeader(key);
+             break;
+            }
+        }
+    	long id=Long.valueOf(iTokens.verifyToken(token));
+		List<Notes> notes =iNotesService.getNoteById(id,noteId);
 		if(notes!=null) {
 
 
@@ -81,10 +117,20 @@ public class UserNotes {
 
 		}
 	}
+	
 	@RequestMapping(value="/deleteNote/{id}",method = RequestMethod.POST)
-	public ResponseEntity<String> deleteNote(@PathVariable("id") long id,HttpSession session) {
-		User user=(User) session.getAttribute("Name");
-		long responseCount =iNotesService.deleteNote(user.getUserId(),id);
+	public ResponseEntity<String> deleteNote(@PathVariable("id") long id,HttpServletRequest request) {
+		Enumeration<String> headerNames = request.getHeaderNames();
+		String token=null; ;
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            if(key.equals("token")) {
+            	token = request.getHeader(key);
+             break;
+            }
+        }
+    	long userId=Long.valueOf(iTokens.verifyToken(token));
+		long responseCount =iNotesService.deleteNote(userId,id);
 		if(responseCount>0) {
 			return  ResponseEntity.status(HttpStatus.ACCEPTED).body("Note deleted succesfully");
 		} else {
@@ -92,10 +138,20 @@ public class UserNotes {
 
 		}
 	}
+	
 	@RequestMapping(value="/updateNote/{id}", method= RequestMethod.POST)
-	public ResponseEntity<String> updateNote(@RequestBody Notes notes,@PathVariable("id") long id,HttpSession session) {
-		User user=(User) session.getAttribute("Name");
-		long responseCount =iNotesService.updateNote(notes,user.getUserId(),id);
+	public ResponseEntity<String> updateNote(@RequestBody Notes notes,@PathVariable("id") long id,HttpServletRequest request) {
+		Enumeration<String> headerNames = request.getHeaderNames();
+		String token=null; ;
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            if(key.equals("token")) {
+            	token = request.getHeader(key);
+             break;
+            }
+        }
+    	long userId=Long.valueOf(iTokens.verifyToken(token));
+		long responseCount =iNotesService.updateNote(notes,userId,id);
 		if(responseCount>0) {
 			return  ResponseEntity.status(HttpStatus.ACCEPTED).body("Note updated succesfully");
 		} else {

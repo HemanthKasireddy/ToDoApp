@@ -57,9 +57,26 @@ public class UserServiceImpl implements IUserService {
 	}
 
 	@Override
-	public User getUserById(int id) {
+	public User getUserById(long id) {
 		User user=userDAO.getUserById(id);
 		return user;
 	}
+	@Override
+	public boolean updateUserPassword(String password, String email) {
+		if(userDAO.updateUserPassword(password,email)>0) {
+			
+			return true;
+		
+		} else {
+			
+			return false;
+		
+		}	}
+
+	
+
+	public User getUserByEmailId(String email) {
+		User user=userDAO.getUserByEmail(email);
+		return user;	}
 
 }
